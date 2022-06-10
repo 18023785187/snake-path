@@ -8,7 +8,7 @@ import { Game } from '../../ts/Game'
 export default {
   name: "Content",
   mounted () {
-    const game = new Game(this.$refs['game_content'], 20)
+    const game = new Game(this.$refs['game_content'], 4)
     console.log(game)
   }
 };
@@ -16,9 +16,7 @@ export default {
 
 <style lang="less" scoped>
 .Content {
-  left: 2vw;
-  width: 75vw;
-  height: 50vh;
-  background-color: pink;
+  width: 100vw;
+  height: 100vh;
 }
 </style>
