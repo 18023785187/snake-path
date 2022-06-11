@@ -4,6 +4,10 @@ import { Control } from './Control'
 import { computePosition } from './utils'
 import { Direction } from './constants'
 
+type mode = 0 | 1 | 2 | 3 | 4 | 5 | 6
+const modeRange: mode[] = [0, 6]
+const speed = [1000, 700, 400, 200, 150, 100, 50]
+
 export class Game {
   private _el: HTMLElement // 受控元素
   private _gridLength: number // 网格长度，适宜范围在 10 ~ 30
@@ -15,9 +19,19 @@ export class Game {
   // 角色
   private _food!: Food
   private _snake!: Snake
+  // 控制
   public control!: Control
-  // 定时器
+  public mode: mode // 难度
   private _timer?: number
+  private scoreHook: (score: number) => void = () => { }
+  private _score!: number // 得分
+  get score() {
+    return this._score
+  }
+  set score(newScore: number) {
+    this._score = newScore
+    this.scoreHook(this.score)
+  }
   constructor(el: HTMLElement, gridLength: number) {
     this._el = el
     if (gridLength < 6) {
@@ -26,11 +40,12 @@ export class Game {
     this._gridLength = gridLength
 
     this._el.style.cssText +=
-    `
+      `
       position: relative;
       background-image: url(${require('@/assets/images/bg.jpg')});
       background-size: 100% 100%;
     `
+    this.mode = 3
 
     this._init()
     this.play()
@@ -54,7 +69,7 @@ export class Game {
     this._width = Math.ceil(this._el.clientWidth / this._gridLength)
     this._height = Math.ceil(this._el.clientHeight / this._gridLength)
     this._el.style.cssText += // 适当调整内容区宽高
-    `
+      `
       width: ${this._width * this._gridLength}px;
       height: ${this._height * this._gridLength}px;
     `
@@ -78,6 +93,8 @@ export class Game {
     this._updateGrid(startIdx + 2)
     this._food.idx = this._random()
     this._food.setPosition(...computePosition(this._food.idx, this._gridLength, this._width, this._height))
+
+    this._score = 0
   }
 
   /**
@@ -111,10 +128,10 @@ export class Game {
   }
 
   /**
-   * 开始游戏
+   * 游戏进行一步，返回布尔值表示游戏是否可以继续
+   * @returns {boolean}
    */
-  public play() {
-    this._timer = setInterval(() => {
+  private _run(): boolean {
     // 每次更新获取遥控器的方向值赋给蛇头
     const newDirection =
       (
@@ -132,28 +149,54 @@ export class Game {
       if (this._snake.head.idx === this._food.idx) { // 如果吃到食物，那么更新蛇长度、更新网格、更新食物位置
         if (this._gridIdxMap[this._snake.head.idx] === null) { // 当蛇触碰到自己时，游戏结束
           this.stop()
+          return false
         }
         this._snake.addNode()
         this._updateGrid(this._snake.head.idx)
+        this.score += 1 // 得分加一
+        if (this._pos === -1) { // 如果食物被吃完，那么胜利
+          this.stop()
+          return false
+        }
         this._food.idx = this._random()
         this._food.setPosition(...computePosition(this._food.idx, this._gridLength, this._width, this._height))
-
       } else { // 未吃到食物，更新网格
         if (this._gridIdxMap[this._snake.head.idx] === null && this._snake.head.idx !== tailIdx) { // 当蛇触碰到自己时，游戏结束
           this.stop()
+          return false
         }
         this._updateGrid(this._snake.head.idx, tailIdx)
       }
     } catch { // 游戏结束
       this.stop()
+      return false
     }
-    }, 200)
+    return true
+  }
+
+  /**
+   * 开始游戏
+   */
+  public play() {
+    this._timer = setTimeout(() => {
+      if (this._run()) this.play()
+    }, speed[this.mode])
   }
 
   /**
    * 停止
    */
   public stop() {
-    clearInterval(this._timer)
+    clearTimeout(this._timer)
+  }
+
+  /**
+   * 设置难度
+   * @param {number} mode 
+   */
+  public setMode(mode: number) {
+    if (mode < modeRange[0]) this.mode = modeRange[0]
+    else if (mode > modeRange[modeRange.length - 1]) this.mode = modeRange[modeRange.length - 1]
+    else this.mode = mode as mode
   }
 }

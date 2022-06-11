@@ -7,4 +7,8 @@ export const Event = {
   KeyboardLeft: 'KeyboardLeft',
   KeyboardRight: 'KeyboardRight',
   KeyboardBottom: 'KeyboardBottom',
+  KeyboardUp: 'KeyboardUp',
+  KeyboardDown: 'KeyboardDown',
+  outputMode: 'outputMode',
+  outputScore: 'outputScore',
 }

@@ -1,48 +1,41 @@
 <template>
   <div class="Keyboard">
     <div class="setting">
-      <div class="score"></div>
+      <div class="setting-item output border">得分：{{score}}</div>
+      <div class="setting-item output border">历史最高：0</div>
+      <div class="setting-item mode">
+        <div class="output border">难度：{{mode}}</div>
+        <div class="btns">
+          <div
+            class="btn border"
+            style="background: red"
+            @click="modeUp"
+          >
+            UP
+          </div>
+          <div
+            class="btn border"
+            style="background: green"
+            @click="modeDown"
+          >
+            DOWN
+          </div>
+        </div>
+      </div>
+      <div class="setting-item">历史最高：0</div>
     </div>
     <div class="direction">
       <div
-        :class="{ active: high === 0 }"
-        class="btn t"
-        @touchstart="top"
-        @mousedown="top"
+        v-for="direction in directions"
+        :key="direction.high"
+        :class="{ active: high === direction.high, [direction.className]: true }"
+        class="btn"
+        @touchstart="direction.callback"
+        @mousedown="direction.callback"
         @touchend="up"
         @mouseup="up"
       >
-        T
-      </div>
-      <div
-        :class="{ active: high === 1 }"
-        class="btn l"
-        @touchstart="left"
-        @mousedown="left"
-        @touchend="up"
-        @mouseup="up"
-      >
-        L
-      </div>
-      <div
-        :class="{ active: high === 2 }"
-        class="btn r"
-        @touchstart="right"
-        @mousedown="right"
-        @touchend="up"
-        @mouseup="up"
-      >
-        R
-      </div>
-      <div
-        :class="{ active: high === 3 }"
-        class="btn b"
-        @touchstart="bottom"
-        @mousedown="bottom"
-        @touchend="up"
-        @mouseup="up"
-      >
-        B
+        {{ direction.text }}
       </div>
     </div>
   </div>
@@ -56,27 +49,65 @@ export default {
   data() {
     return {
       high: -1,
+      directions: [
+        {
+          className: "t",
+          text: "T",
+          high: 0,
+          callback: () => {
+            this.high = 0;
+            this.$bus.$emit(Event["KeyboardTop"]);
+          },
+        },
+        {
+          className: "l",
+          text: "L",
+          high: 1,
+          callback: () => {
+            this.high = 1;
+            this.$bus.$emit(Event["KeyboardLeft"]);
+          },
+        },
+        {
+          className: "r",
+          text: "R",
+          high: 2,
+          callback: () => {
+            this.high = 2;
+            this.$bus.$emit(Event["KeyboardRight"]);
+          },
+        },
+        {
+          className: "b",
+          text: "B",
+          high: 3,
+          callback: () => {
+            this.high = 3;
+            this.$bus.$emit(Event["KeyboardBottom"]);
+          },
+        },
+      ],
+      mode: 3,
+      score: 0,
     };
   },
+  created () {
+    this.$bus.$on(Event['outputMode'], (mode) => {
+      this.mode = mode
+    })
+    this.$bus.$on(Event['outputScore'], (score) => {
+      this.score = score
+    })
+  },
   methods: {
-    top() {
-      this.high = 0;
-      this.$bus.$emit(Event["KeyboardTop"]);
-    },
-    left() {
-      this.high = 1;
-      this.$bus.$emit(Event["KeyboardLeft"]);
-    },
-    right() {
-      this.high = 2;
-      this.$bus.$emit(Event["KeyboardRight"]);
-    },
-    bottom() {
-      this.high = 3;
-      this.$bus.$emit(Event["KeyboardBottom"]);
-    },
     up() {
       this.high = -1;
+    },
+    modeUp() {
+      this.$bus.$emit(Event["KeyboardUp"]);
+    },
+    modeDown() {
+      this.$bus.$emit(Event["KeyboardDown"]);
     },
   },
 };
@@ -92,14 +123,64 @@ export default {
   box-sizing: border-box;
 
   .setting {
-    width: 20vh;
-    height: 25vh;
-    .score {
-      width: 50%;
-      height: 5vh;
-      margin: 0vw auto 2vw;
-      border: solid 0.2vh;
-      border-color: #987f0f #fae36c #fae36c #987f0f;
+    flex: 1;
+    padding-right: 5%;
+    color: #eee;
+    text-align: center;
+
+    .setting-item {
+      width: 100%;
+      height: 6vh;
+      line-height: 5.5vh;
+      font-size: 3vw;
+      margin: 0.5vh 0;
+      box-sizing: border-box;
+    }
+
+    .output {
+      background-color: rgb(40, 44, 52);
+    }
+
+    .mode {
+      display: flex;
+
+      .output {
+        flex: 1;
+      }
+
+      .btns {
+        width: 40%;
+
+        .btn {
+          position: relative;
+          height: 3vh;
+          line-height: 2.2vh;
+          font-size: 0.8vw;
+          box-sizing: border-box;
+
+          &::after {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 5px 10px rgba(255, 255, 255, 80%) inset;
+          }
+
+          &::before {
+            content: "";
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 -5px 10px rgba(0, 0, 0, 80%) inset;
+          }
+        }
+      }
     }
   }
 
@@ -174,6 +255,11 @@ export default {
       left: 50%;
       transform: translate3d(-50%, 0, 0);
     }
+  }
+
+  .border {
+    border: solid 0.3vh;
+    border-color: #987f0f #fae36c #fae36c #987f0f;
   }
 }
 </style>

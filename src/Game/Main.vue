@@ -9,20 +9,32 @@ import { Event } from "@/event";
 export default {
   name: "Main",
   mounted() {
-    const game = new Game(this.$refs["game_main"], 30);
-    this.$bus.$on(Event['KeyboardTop'], () => {
-      game.control.top()
-    })
-    this.$bus.$on(Event['KeyboardLeft'], () => {
-      game.control.left()
-    })
-    this.$bus.$on(Event['KeyboardRight'], () => {
-      game.control.right()
-    })
-    this.$bus.$on(Event['KeyboardBottom'], () => {
-      game.control.bottom()
-    })
-    console.log(game);
+    const game = new Game(this.$refs["game_main"], 25);
+    this.$bus.$on(Event["KeyboardTop"], () => {
+      game.control.top();
+    });
+    this.$bus.$on(Event["KeyboardLeft"], () => {
+      game.control.left();
+    });
+    this.$bus.$on(Event["KeyboardRight"], () => {
+      game.control.right();
+    });
+    this.$bus.$on(Event["KeyboardBottom"], () => {
+      game.control.bottom();
+    });
+    this.$bus.$on(Event["KeyboardUp"], () => {
+      game.setMode(game.mode + 1);
+      this.$bus.$emit(Event["outputMode"], game.mode);
+    });
+    this.$bus.$on(Event["KeyboardDown"], () => {
+      game.setMode(game.mode - 1);
+      this.$bus.$emit(Event["outputMode"], game.mode);
+    });
+    game.scoreHook = (score) => {
+      this.$bus.$emit(Event["outputScore"], score);
+    };
+
+    this.$bus.$emit(Event["outputMode"], game.mode);
   },
 };
 </script>
