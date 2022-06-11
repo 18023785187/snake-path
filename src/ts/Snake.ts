@@ -172,6 +172,8 @@ class Node {
       position: absolute;
       width: ${width}px;
       height: ${height}px;
+      // transition-property: top, left;
+      // transition-duration: 0.3s, 0.3s;
     `
     this.direction = direction ? direction : Direction.Top // 初始化方向
     this.position = computePosition(this.idx, this._gridLength, this._width, this._height) // 初始化位置

@@ -15,17 +15,22 @@ export class Game {
   // 角色
   private _food!: Food
   private _snake!: Snake
-  private _control!: Control
+  public control!: Control
   // 定时器
   private _timer?: number
   constructor(el: HTMLElement, gridLength: number) {
     this._el = el
-    if (gridLength < 1) {
+    if (gridLength < 6) {
       throw new Error("gridLength can't be less than 6")
     }
     this._gridLength = gridLength
 
-    this._el.style.position = 'relative'
+    this._el.style.cssText +=
+    `
+      position: relative;
+      background-image: url(${require('@/assets/images/bg.jpg')});
+      background-size: 100% 100%;
+    `
 
     this._init()
     this.play()
@@ -45,9 +50,14 @@ export class Game {
     this._gridIdxMap = gridIdxMap
     // 初始化指针
     this._pos = this._gridLength ** 2 - 1
-    // 初始化网格单元宽高
-    this._width = this._el.clientWidth / this._gridLength
-    this._height = this._el.clientHeight / this._gridLength
+    // 初始化网格单元宽高，向下取整确保精度
+    this._width = Math.ceil(this._el.clientWidth / this._gridLength)
+    this._height = Math.ceil(this._el.clientHeight / this._gridLength)
+    this._el.style.cssText += // 适当调整内容区宽高
+    `
+      width: ${this._width * this._gridLength}px;
+      height: ${this._height * this._gridLength}px;
+    `
     // 初始化食物
     this._food = new Food(this._el, this._width, this._height)
 
@@ -61,7 +71,7 @@ export class Game {
       [startIdx, startIdx + 1, startIdx + 2]
     )
     // 初始化控制器
-    this._control = new Control()
+    this.control = new Control()
 
     this._updateGrid(startIdx)
     this._updateGrid(startIdx + 1)
@@ -96,7 +106,7 @@ export class Game {
    */
   private _random(): number {
     return this._grid[
-      Math.floor(Math.random() * this._pos + 1)
+      Math.floor(Math.random() * (this._pos + 1))
     ]
   }
 
@@ -108,12 +118,12 @@ export class Game {
     // 每次更新获取遥控器的方向值赋给蛇头
     const newDirection =
       (
-        (this._control.direction === Direction.Top && this._snake.head.direction === Direction.Bottom)
-        || (this._control.direction === Direction.Bottom && this._snake.head.direction === Direction.Top)
-        || (this._control.direction === Direction.Left && this._snake.head.direction === Direction.Right)
-        || (this._control.direction === Direction.Right && this._snake.head.direction === Direction.Left)
+        (this.control.direction === Direction.Top && this._snake.head.direction === Direction.Bottom)
+        || (this.control.direction === Direction.Bottom && this._snake.head.direction === Direction.Top)
+        || (this.control.direction === Direction.Left && this._snake.head.direction === Direction.Right)
+        || (this.control.direction === Direction.Right && this._snake.head.direction === Direction.Left)
       )
-        ? this._snake.head.direction : this._control.direction
+        ? this._snake.head.direction : this.control.direction
 
     this._snake.head.direction = newDirection
     try {
@@ -137,7 +147,7 @@ export class Game {
     } catch { // 游戏结束
       this.stop()
     }
-    }, 500)
+    }, 200)
   }
 
   /**
