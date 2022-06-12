@@ -11,4 +11,7 @@ export const Event = {
   KeyboardDown: 'KeyboardDown',
   outputMode: 'outputMode',
   outputScore: 'outputScore',
+  KeyboardStop: 'KeyboardStop',
+  KeyboardPlay: 'KeyboardPlay',
+  outputEndScore: 'outputEndScore',
 }

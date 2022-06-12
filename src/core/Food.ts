@@ -31,4 +31,11 @@ export class Food {
       top: ${y}px;
     `
   }
+
+  /**
+   * 销毁
+   */
+  public destroy() {
+    this._el.remove()
+  }
 }

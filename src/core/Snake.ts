@@ -134,6 +134,17 @@ export class Snake {
 
     this.length += 1 // 蛇长度加一
   }
+
+  /**
+   * 销毁
+   */
+  public destroy() {
+    let cur: Node | null = this.head
+    while (cur) {
+      cur.destroy()
+      cur = cur.next
+    }
+  }
 }
 
 /**
@@ -253,5 +264,13 @@ class Node {
     }
 
     this.position = computePosition(this.idx, this._gridLength, this._width, this._height)
+  }
+
+
+  /**
+   * 销毁
+   */
+  public destroy() {
+    this._el.remove()
   }
 }

@@ -1,28 +1,23 @@
 <template>
   <div class="Keyboard">
     <div class="setting">
-      <div class="setting-item output border">得分：{{score}}</div>
-      <div class="setting-item output border">历史最高：0</div>
+      <div class="setting-item output border">得分：{{ score }}</div>
+      <div class="setting-item output border">历史最高：{{ endScore }}</div>
       <div class="setting-item mode">
-        <div class="output border">难度：{{mode}}</div>
+        <div class="output border">难度：{{ mode }}</div>
         <div class="btns">
-          <div
-            class="btn border"
-            style="background: red"
-            @click="modeUp"
-          >
-            UP
-          </div>
-          <div
-            class="btn border"
-            style="background: green"
-            @click="modeDown"
-          >
-            DOWN
-          </div>
+          <div class="btn border" style="background: red" @click="modeUp">UP</div>
+          <div class="btn border" style="background: green" @click="modeDown">DOWN</div>
         </div>
       </div>
-      <div class="setting-item">历史最高：0</div>
+      <div class="setting-item on-off">
+        <div class="border btn" style="background: rgb(0, 72, 107)" @click="stop">
+          STOP
+        </div>
+        <div class="border btn" style="background: rgb(60, 202, 10)" @click="play">
+          PLAY
+        </div>
+      </div>
     </div>
     <div class="direction">
       <div
@@ -89,15 +84,23 @@ export default {
       ],
       mode: 3,
       score: 0,
+      endScore: 0,
     };
   },
-  created () {
-    this.$bus.$on(Event['outputMode'], (mode) => {
-      this.mode = mode
-    })
-    this.$bus.$on(Event['outputScore'], (score) => {
-      this.score = score
-    })
+  created() {
+    this.$bus.$on(Event["outputMode"], (mode) => {
+      this.mode = mode;
+    });
+    this.$bus.$on(Event["outputScore"], (score) => {
+      this.score = score;
+    });
+    this.$bus.$on(Event["outputEndScore"], (endScore) => {
+      const endScorePrev = window.localStorage.getItem("END_SCORE");
+      if (endScorePrev == null || this.endScore < endScore) {
+        this.endScore = endScore;
+        window.localStorage.setItem("END_SCORE", this.endScore);
+      }
+    });
   },
   methods: {
     up() {
@@ -108,6 +111,12 @@ export default {
     },
     modeDown() {
       this.$bus.$emit(Event["KeyboardDown"]);
+    },
+    stop() {
+      this.$bus.$emit(Event["KeyboardStop"]);
+    },
+    play() {
+      this.$bus.$emit(Event["KeyboardPlay"]);
     },
   },
 };
@@ -132,7 +141,7 @@ export default {
       width: 100%;
       height: 6vh;
       line-height: 5.5vh;
-      font-size: 3vw;
+      font-size: 14px;
       margin: 0.5vh 0;
       box-sizing: border-box;
     }
@@ -152,34 +161,45 @@ export default {
         width: 40%;
 
         .btn {
-          position: relative;
           height: 3vh;
           line-height: 2.2vh;
-          font-size: 0.8vw;
-          box-sizing: border-box;
-
-          &::after {
-            content: "";
-            display: block;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            box-shadow: 0 5px 10px rgba(255, 255, 255, 80%) inset;
-          }
-
-          &::before {
-            content: "";
-            display: block;
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            box-shadow: 0 -5px 10px rgba(0, 0, 0, 80%) inset;
-          }
+          font-size: 12px;
         }
+      }
+    }
+    .on-off {
+      display: flex;
+      justify-content: space-between;
+
+      .btn {
+        width: 48%;
+      }
+    }
+
+    .btn {
+      position: relative;
+      box-sizing: border-box;
+
+      &::after {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        box-shadow: 0 5px 10px rgba(255, 255, 255, 80%) inset;
+      }
+
+      &::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        box-shadow: 0 -5px 10px rgba(0, 0, 0, 80%) inset;
       }
     }
   }

@@ -3,13 +3,13 @@
 </template>
 
 <script>
-import { Game } from "../ts/Game";
+import { Game } from "../core/Game";
 import { Event } from "@/event";
 
 export default {
   name: "Main",
   mounted() {
-    const game = new Game(this.$refs["game_main"], 25);
+    const game = new Game(this.$refs["game_main"], 20);
     this.$bus.$on(Event["KeyboardTop"], () => {
       game.control.top();
     });
@@ -32,6 +32,16 @@ export default {
     });
     game.scoreHook = (score) => {
       this.$bus.$emit(Event["outputScore"], score);
+    };
+    this.$bus.$on(Event["KeyboardStop"], () => {
+      game.stop();
+    });
+    this.$bus.$on(Event["KeyboardPlay"], () => {
+      game.stop();
+      game.play();
+    });
+    game.endHook = (endScore) => {
+      this.$bus.$emit(Event["outputEndScore"], endScore);
     };
 
     this.$bus.$emit(Event["outputMode"], game.mode);
