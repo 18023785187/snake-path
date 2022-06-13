@@ -2,6 +2,8 @@
 
 ##### 🚀 特意写了一个算法还算复杂的贪吃蛇，来检验我在力扣刷了 700 多题算法的水平。
 
+<a href='https://snake-path.vercel.app'>在线玩</a>
+
 ---
 
 <img src="./docs/image.png" />
